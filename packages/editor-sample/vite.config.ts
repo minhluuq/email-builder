@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react-swc';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/email-builder-js/',
+  base: process.env.NODE_ENV === 'production' ? '/' : '/email-builder-js/',
 });
