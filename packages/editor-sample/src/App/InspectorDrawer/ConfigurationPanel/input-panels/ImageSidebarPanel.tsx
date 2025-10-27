@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import {
   VerticalAlignBottomOutlined,
@@ -9,6 +9,7 @@ import { Stack, ToggleButton } from '@mui/material';
 import { ImageProps, ImagePropsSchema } from '@usewaypoint/block-image';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
+import ImageUpload from './helpers/inputs/ImageUpload';
 import RadioGroupInput from './helpers/inputs/RadioGroupInput';
 import TextDimensionInput from './helpers/inputs/TextDimensionInput';
 import TextInput from './helpers/inputs/TextInput';
@@ -33,12 +34,12 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
 
   return (
     <BaseSidebarPanel title="Image block">
-      <TextInput
-        label="Source URL"
-        defaultValue={data.props?.url ?? ''}
-        onChange={(v) => {
-          const url = v.trim().length === 0 ? null : v.trim();
-          updateData({ ...data, props: { ...data.props, url } });
+      <ImageUpload
+        label="Image"
+        value={data.props?.url ?? ''}
+        onChange={(url) => {
+          const finalUrl = url.trim().length === 0 ? null : url.trim();
+          updateData({ ...data, props: { ...data.props, url: finalUrl } });
         }}
       />
 
