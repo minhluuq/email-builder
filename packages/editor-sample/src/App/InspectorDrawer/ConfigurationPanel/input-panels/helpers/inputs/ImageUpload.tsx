@@ -10,12 +10,7 @@ type ImageUploadProps = {
   accept?: string;
 };
 
-export default function ImageUpload({ 
-  label, 
-  value, 
-  onChange, 
-  accept = 'image/*' 
-}: ImageUploadProps) {
+export default function ImageUpload({ label, value, onChange, accept = 'image/*' }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string>(value || '');
@@ -33,7 +28,7 @@ export default function ImageUpload({
     }
 
     setIsUploading(true);
-    
+
     try {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -73,7 +68,7 @@ export default function ImageUpload({
       <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
         {label}
       </Typography>
-      
+
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} aria-label="image input tabs">
           <Tab label="Upload" />
@@ -91,7 +86,7 @@ export default function ImageUpload({
             accept={accept}
             style={{ display: 'none' }}
           />
-          
+
           <Button
             variant="outlined"
             onClick={handleButtonClick}
@@ -102,8 +97,8 @@ export default function ImageUpload({
               py: 2,
               borderStyle: 'dashed',
               '&:hover': {
-                borderStyle: 'dashed'
-              }
+                borderStyle: 'dashed',
+              },
             }}
           >
             {isUploading ? 'Uploading...' : 'Click to upload image'}
@@ -144,7 +139,7 @@ export default function ImageUpload({
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: '#f5f5f5',
-                border: '1px solid #e0e0e0'
+                border: '1px solid #e0e0e0',
               }}
             >
               <img
@@ -153,7 +148,7 @@ export default function ImageUpload({
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover'
+                  objectFit: 'cover',
                 }}
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -166,10 +161,9 @@ export default function ImageUpload({
                 {preview.startsWith('data:') ? 'Uploaded file' : 'External image'}
               </Typography>
               <Typography variant="caption" color="text.secondary" noWrap>
-                {preview.startsWith('data:') 
-                  ? `Base64 encoded (${Math.round(preview.length * 0.75 / 1024)}KB)` 
-                  : preview
-                }
+                {preview.startsWith('data:')
+                  ? `Base64 encoded (${Math.round((preview.length * 0.75) / 1024)}KB)`
+                  : preview}
               </Typography>
             </Box>
             <IconButton size="small" onClick={handleRemove} color="error">
