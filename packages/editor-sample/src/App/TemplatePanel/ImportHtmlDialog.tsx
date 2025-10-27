@@ -17,12 +17,36 @@ import { CloudUploadOutlined } from '@mui/icons-material';
 import { resetDocument } from '../../documents/editor/EditorContext';
 import { TEditorConfiguration } from '../../documents/editor/core';
 
-// Simple HTML to template parser
+// Enhanced HTML to template parser with metadata detection
 function parseHtmlToTemplate(html: string): { error?: string; data?: TEditorConfiguration } {
   try {
     const cleanHtml = html.trim();
     if (!cleanHtml) {
       return { error: 'Please enter valid HTML content.' };
+    }
+
+    // Try to extract embedded template data first
+    const templateMatch = cleanHtml.match(
+      /<!--EMAILBUILDER_TEMPLATE_START\s*([\s\S]*?)\s*EMAILBUILDER_TEMPLATE_END-->/
+    );
+
+    if (templateMatch) {
+      try {
+        // Found embedded template data - parse and return it
+        const templateData = JSON.parse(templateMatch[1]);
+        return { data: templateData };
+      } catch (jsonError) {
+        // If JSON parsing fails, fall back to HTML parsing
+        console.warn('Failed to parse embedded template data, falling back to HTML parsing');
+      }
+    }
+
+    // No embedded data found or parsing failed - create template from HTML
+    // Extract HTML content from body if it's a full HTML document
+    let htmlContent = cleanHtml;
+    const bodyMatch = cleanHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    if (bodyMatch) {
+      htmlContent = bodyMatch[1].trim();
     }
 
     // Create a basic template structure with HTML block
@@ -49,7 +73,7 @@ function parseHtmlToTemplate(html: string): { error?: string; data?: TEditorConf
             },
           },
           props: {
-            contents: cleanHtml,
+            contents: htmlContent,
           },
         },
       },
@@ -120,6 +144,10 @@ export default function ImportHtmlDialog({ onClose }: ImportHtmlDialogProps) {
         <DialogContent>
           <Typography color="text.secondary" paragraph>
             Import HTML content as a template. You can paste HTML directly or upload an HTML file.
+          </Typography>
+          <Typography color="text.secondary" paragraph sx={{ fontSize: '0.875rem' }}>
+            <strong>💡 Tip:</strong> HTML files exported from this app contain template data and will be imported with
+            full editing capabilities. Regular HTML will be converted to a basic template.
           </Typography>
 
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
