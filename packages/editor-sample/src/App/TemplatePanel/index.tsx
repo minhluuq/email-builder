@@ -16,6 +16,7 @@ import ToggleSamplesPanelButton from '../SamplesDrawer/ToggleSamplesPanelButton'
 
 import DownloadJson from './DownloadJson';
 import DownloadHtml from './DownloadHtml';
+import DownloadTemplate from './DownloadTemplate';
 import HtmlPanel from './HtmlPanel';
 import ImportJson from './ImportJson';
 import ImportHtml from './ImportHtml';
@@ -99,6 +100,7 @@ export default function TemplatePanel() {
           <Stack direction="row" spacing={2}>
             <DownloadJson />
             <DownloadHtml />
+            <DownloadTemplate />
             <ImportJson />
             <ImportHtml />
             <ToggleButtonGroup value={selectedScreenSize} exclusive size="small" onChange={handleScreenSizeChange}>

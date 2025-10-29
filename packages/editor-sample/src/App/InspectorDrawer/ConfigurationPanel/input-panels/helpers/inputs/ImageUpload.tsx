@@ -156,11 +156,27 @@ export default function ImageUpload({ label, value, onChange, accept = 'image/*'
                 }}
               />
             </Box>
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="body2" fontWeight={500}>
                 {preview.startsWith('data:') ? 'Uploaded file' : 'External image'}
               </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                  display: 'block',
+                  wordBreak: 'break-all',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '100%',
+                }}
+                title={
+                  preview.startsWith('data:')
+                    ? `Base64 encoded (${Math.round((preview.length * 0.75) / 1024)}KB)`
+                    : preview
+                }
+              >
                 {preview.startsWith('data:')
                   ? `Base64 encoded (${Math.round((preview.length * 0.75) / 1024)}KB)`
                   : preview}

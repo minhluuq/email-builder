@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileUploadOutlined } from '@mui/icons-material';
+import { CodeOutlined } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
 import ImportHtmlDialog from '../ImportHtmlDialog';
 
@@ -7,9 +7,9 @@ export default function ImportHtml() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Tooltip title="Import HTML">
+      <Tooltip title="Import HTML content">
         <IconButton onClick={() => setOpen(true)}>
-          <FileUploadOutlined fontSize="small" />
+          <CodeOutlined fontSize="small" />
         </IconButton>
       </Tooltip>
       {open && <ImportHtmlDialog onClose={() => setOpen(false)} />}

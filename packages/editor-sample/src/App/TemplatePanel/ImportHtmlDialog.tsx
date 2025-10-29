@@ -146,8 +146,8 @@ export default function ImportHtmlDialog({ onClose }: ImportHtmlDialogProps) {
             Import HTML content as a template. You can paste HTML directly or upload an HTML file.
           </Typography>
           <Typography color="text.secondary" paragraph sx={{ fontSize: '0.875rem' }}>
-            <strong>💡 Tip:</strong> HTML files exported from this app contain template data and will be imported with
-            full editing capabilities. Regular HTML will be converted to a basic template.
+            <strong>💡 Note:</strong> HTML will be converted to an editable template. For full template preservation,
+            use JSON export/import instead.
           </Typography>
 
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
