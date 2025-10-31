@@ -1,6 +1,8 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
+import EmailMarkdown from './EmailMarkdown';
+
 const FONT_FAMILY_SCHEMA = z
   .enum([
     'MODERN_SANS',
@@ -66,6 +68,7 @@ export const HtmlPropsSchema = z.object({
       backgroundColor: COLOR_SCHEMA,
       fontFamily: FONT_FAMILY_SCHEMA,
       fontSize: z.number().min(0).optional().nullable(),
+      fontWeight: z.enum(['bold', 'normal']).optional().nullable(),
       textAlign: z.enum(['left', 'right', 'center']).optional().nullable(),
       padding: PADDING_SCHEMA,
     })
@@ -74,6 +77,7 @@ export const HtmlPropsSchema = z.object({
   props: z
     .object({
       contents: z.string().optional().nullable(),
+      markdown: z.boolean().optional().nullable(),
     })
     .optional()
     .nullable(),
@@ -82,17 +86,27 @@ export const HtmlPropsSchema = z.object({
 export type HtmlProps = z.infer<typeof HtmlPropsSchema>;
 
 export function Html({ style, props }: HtmlProps) {
-  const children = props?.contents;
+  const children = props?.contents ?? '';
   const cssStyle: CSSProperties = {
     color: style?.color ?? undefined,
     backgroundColor: style?.backgroundColor ?? undefined,
     fontFamily: getFontFamily(style?.fontFamily),
     fontSize: style?.fontSize ?? undefined,
+    fontWeight: style?.fontWeight ?? undefined,
     textAlign: style?.textAlign ?? undefined,
     padding: getPadding(style?.padding),
   };
+
+  // Nếu bật markdown mode, sử dụng EmailMarkdown để có thể edit rich text
+  if (props?.markdown) {
+    return <EmailMarkdown style={cssStyle} markdown={children} />;
+  }
+
+  // Nếu không có content, trả về div rỗng
   if (!children) {
     return <div style={cssStyle} />;
   }
+
+  // Mode HTML thuần, render trực tiếp HTML
   return <div style={cssStyle} dangerouslySetInnerHTML={{ __html: children }} />;
 }
