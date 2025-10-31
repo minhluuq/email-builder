@@ -21,19 +21,44 @@ type Props = {
 
 // Preset colors for quick selection
 const PRESET_COLORS = [
-  '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF',
-  '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080',
-  '#008000', '#FFC0CB', '#A52A2A', '#808080', '#FFD700',
+  '#000000',
+  '#FFFFFF',
+  '#FF0000',
+  '#00FF00',
+  '#0000FF',
+  '#FFFF00',
+  '#FF00FF',
+  '#00FFFF',
+  '#FFA500',
+  '#800080',
+  '#008000',
+  '#FFC0CB',
+  '#A52A2A',
+  '#808080',
+  '#FFD700',
 ];
 
 const PRESET_HIGHLIGHTS = [
-  '#FFFF00', '#00FF00', '#00FFFF', '#FF00FF', '#FFA500',
-  '#FFD700', '#90EE90', '#87CEEB', '#DDA0DD', '#F0E68C',
-  '#FFB6C1', '#FFDAB9', '#E0BBE4', '#C7CEEA', '#B0E57C',
+  '#FFFF00',
+  '#00FF00',
+  '#00FFFF',
+  '#FF00FF',
+  '#FFA500',
+  '#FFD700',
+  '#90EE90',
+  '#87CEEB',
+  '#DDA0DD',
+  '#F0E68C',
+  '#FFB6C1',
+  '#FFDAB9',
+  '#E0BBE4',
+  '#C7CEEA',
+  '#B0E57C',
 ];
 
 export default function RichTextEditor({ label, defaultValue, onChange }: Props) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const savedSelectionRef = useRef<Range | null>(null);
   const [colorAnchor, setColorAnchor] = useState<HTMLElement | null>(null);
   const [highlightAnchor, setHighlightAnchor] = useState<HTMLElement | null>(null);
   const [sizeAnchor, setSizeAnchor] = useState<HTMLElement | null>(null);
@@ -55,18 +80,40 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
     }
   };
 
+  const saveSelection = () => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      savedSelectionRef.current = selection.getRangeAt(0).cloneRange();
+    }
+  };
+
+  const restoreSelection = () => {
+    if (savedSelectionRef.current) {
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(savedSelectionRef.current);
+      }
+    }
+  };
+
   const execCommand = (command: string, value?: string) => {
     document.execCommand(command, false, value);
     editorRef.current?.focus();
   };
 
-  const applyColor = () => {
+  const applyColor = (color?: string) => {
+    const colorToApply = color || selectedColor;
+
+    // Restore selection nếu có
+    restoreSelection();
+
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
       const range = selection.getRangeAt(0);
       const span = document.createElement('span');
       // Use HEX color directly - ensures output is HEX not RGB
-      span.style.color = selectedColor;
+      span.style.color = colorToApply;
 
       try {
         // Extract the selected content
@@ -81,16 +128,24 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
         console.error('Error applying color:', e);
       }
     }
-    setColorAnchor(null);
+
+    if (!color) {
+      setColorAnchor(null);
+    }
   };
 
-  const applyHighlight = () => {
+  const applyHighlight = (color?: string) => {
+    const colorToApply = color || selectedHighlight;
+
+    // Restore selection nếu có
+    restoreSelection();
+
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
       const range = selection.getRangeAt(0);
       const span = document.createElement('span');
       // Use HEX for background color
-      span.style.backgroundColor = selectedHighlight;
+      span.style.backgroundColor = colorToApply;
 
       try {
         // Extract the selected content
@@ -105,15 +160,23 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
         console.error('Error applying highlight:', e);
       }
     }
-    setHighlightAnchor(null);
+
+    if (!color) {
+      setHighlightAnchor(null);
+    }
   };
 
-  const applyFontSize = () => {
+  const applyFontSize = (size?: string) => {
+    const sizeToApply = size || fontSize;
+
+    // Restore selection nếu có
+    restoreSelection();
+
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
       const range = selection.getRangeAt(0);
       const span = document.createElement('span');
-      span.style.fontSize = `${fontSize}px`;
+      span.style.fontSize = `${sizeToApply}px`;
 
       try {
         // Extract the selected content
@@ -128,7 +191,10 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
         console.error('Error applying font size:', e);
       }
     }
-    setSizeAnchor(null);
+
+    if (!size) {
+      setSizeAnchor(null);
+    }
   };
 
   const applyLink = () => {
@@ -164,19 +230,37 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
         </Tooltip>
 
         <Tooltip title="Text Color">
-          <IconButton size="small" onClick={(e) => setColorAnchor(e.currentTarget)}>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              saveSelection();
+              setColorAnchor(e.currentTarget);
+            }}
+          >
             <FormatColorText fontSize="small" />
           </IconButton>
         </Tooltip>
 
         <Tooltip title="Highlight Color">
-          <IconButton size="small" onClick={(e) => setHighlightAnchor(e.currentTarget)}>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              saveSelection();
+              setHighlightAnchor(e.currentTarget);
+            }}
+          >
             <Highlight fontSize="small" />
           </IconButton>
         </Tooltip>
 
         <Tooltip title="Font Size">
-          <IconButton size="small" onClick={(e) => setSizeAnchor(e.currentTarget)}>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              saveSelection();
+              setSizeAnchor(e.currentTarget);
+            }}
+          >
             <FormatSize fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -222,7 +306,7 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
       >
         <Box sx={{ p: 2, width: 250 }}>
           <Box sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>Text Color</Box>
-          
+
           {/* Preset Colors */}
           <Box sx={{ mb: 2 }}>
             <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 1 }}>Quick Colors</Box>
@@ -230,7 +314,10 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
               {PRESET_COLORS.map((color) => (
                 <Box
                   key={color}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => {
+                    setSelectedColor(color);
+                    applyColor(color);
+                  }}
                   sx={{
                     width: 28,
                     height: 28,
@@ -265,8 +352,8 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
 
           {/* Color Picker */}
           <HexColorPicker color={selectedColor} onChange={setSelectedColor} style={{ width: '100%' }} />
-          
-          <Button fullWidth variant="contained" onClick={applyColor} sx={{ mt: 2 }}>
+
+          <Button fullWidth variant="contained" onClick={() => applyColor()} sx={{ mt: 2 }}>
             Apply Color
           </Button>
         </Box>
@@ -281,7 +368,7 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
       >
         <Box sx={{ p: 2, width: 250 }}>
           <Box sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>Highlight Color</Box>
-          
+
           {/* Preset Highlight Colors */}
           <Box sx={{ mb: 2 }}>
             <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 1 }}>Quick Highlights</Box>
@@ -289,7 +376,10 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
               {PRESET_HIGHLIGHTS.map((color) => (
                 <Box
                   key={color}
-                  onClick={() => setSelectedHighlight(color)}
+                  onClick={() => {
+                    setSelectedHighlight(color);
+                    applyHighlight(color);
+                  }}
                   sx={{
                     width: 28,
                     height: 28,
@@ -324,8 +414,8 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
 
           {/* Color Picker */}
           <HexColorPicker color={selectedHighlight} onChange={setSelectedHighlight} style={{ width: '100%' }} />
-          
-          <Button fullWidth variant="contained" onClick={applyHighlight} sx={{ mt: 2 }}>
+
+          <Button fullWidth variant="contained" onClick={() => applyHighlight()} sx={{ mt: 2 }}>
             Apply Highlight
           </Button>
         </Box>
@@ -338,16 +428,39 @@ export default function RichTextEditor({ label, defaultValue, onChange }: Props)
         onClose={() => setSizeAnchor(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <Box sx={{ p: 2, width: 200 }}>
+        <Box sx={{ p: 2, width: 220 }}>
+          <Box sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>Font Size</Box>
+
+          {/* Quick Size Buttons */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 1 }}>Quick Sizes</Box>
+            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 0.5 }}>
+              {['12', '14', '16', '18', '20', '24', '28', '32'].map((size) => (
+                <Button
+                  key={size}
+                  size="small"
+                  variant={fontSize === size ? 'contained' : 'outlined'}
+                  onClick={() => {
+                    setFontSize(size);
+                    applyFontSize(size);
+                  }}
+                  sx={{ minWidth: 45 }}
+                >
+                  {size}
+                </Button>
+              ))}
+            </Stack>
+          </Box>
+
           <TextField
             fullWidth
-            label="Font Size (px)"
+            label="Custom Size (px)"
             type="number"
             value={fontSize}
             onChange={(e) => setFontSize(e.target.value)}
             size="small"
           />
-          <Button fullWidth variant="contained" onClick={applyFontSize} sx={{ mt: 2 }}>
+          <Button fullWidth variant="contained" onClick={() => applyFontSize()} sx={{ mt: 2 }}>
             Apply Size
           </Button>
         </Box>
